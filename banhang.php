@@ -1,15 +1,12 @@
 <?php
 session_start();
-include 'connect.php';  // Kết nối cơ sở dữ liệu
-
-// Kiểm tra giỏ hàng đã tồn tại trong session chưa
+include 'connect.php';  
 if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = [];  // Khởi tạo giỏ hàng nếu chưa tồn tại
+    $_SESSION['cart'] = [];  
 }
 
-$tongtien = 0;  // Tổng tiền giỏ hàng
+$tongtien = 0;  
 
-// Kiểm tra mã vạch sản phẩm
 if (isset($_POST['check_item']) && isset($_POST['mavach']) && !empty($_POST['mavach'])) {
     $mavach = $_POST['mavach'];
     $result = $conn->query("SELECT id, tenhang, giatien, soluong FROM mahang WHERE mavach = '$mavach'");
@@ -26,7 +23,6 @@ if (isset($_POST['check_item']) && isset($_POST['mavach']) && !empty($_POST['mav
     }
 }
 
-// Thêm sản phẩm vào giỏ hàng
 if (isset($_POST['add_to_cart']) && isset($_POST['mavach']) && isset($_POST['soluongban'])) {
     $mavach = $_POST['mavach'];
     $soluongban = $_POST['soluongban'];
@@ -40,7 +36,7 @@ if (isset($_POST['add_to_cart']) && isset($_POST['mavach']) && isset($_POST['sol
         $giatien = $row['giatien'];
         $soluonghethong = $row['soluong'];
 
-        // Kiểm tra số lượng bán
+
         if ($soluongban <= $soluonghethong) {
             $tongtienmotsanpham = $soluongban * $giatien;
 
@@ -53,7 +49,6 @@ if (isset($_POST['add_to_cart']) && isset($_POST['mavach']) && isset($_POST['sol
                 'tongtien' => $tongtienmotsanpham
             ];
 
-            // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
             $found = false;
             foreach ($_SESSION['cart'] as &$item) {
                 if ($item['mavach'] === $mavach) {
@@ -64,12 +59,10 @@ if (isset($_POST['add_to_cart']) && isset($_POST['mavach']) && isset($_POST['sol
                 }
             }
 
-            // Nếu chưa có, thêm mới vào giỏ hàng
             if (!$found) {
                 $_SESSION['cart'][] = $product;
             }
 
-            // Tính tổng tiền giỏ hàng
             $tongtien = 0;
             foreach ($_SESSION['cart'] as $item) {
                 if (isset($item['tongtien'])) {
@@ -84,7 +77,6 @@ if (isset($_POST['add_to_cart']) && isset($_POST['mavach']) && isset($_POST['sol
     }
 }
 
-// Xử lý bán hàng khi người dùng gửi thông tin
 if (isset($_POST['ban_hang'])) {
     $isvalid = true;
     foreach ($_SESSION['cart'] as $item) {
@@ -98,20 +90,18 @@ if (isset($_POST['ban_hang'])) {
     }
 
     if ($isvalid) {
-        // Thực hiện thêm giao dịch vào bảng `ban_hang`
         foreach ($_SESSION['cart'] as $item) {
             $mavach = $item['mavach'];
             $tenhang = $item['tenhang'];
             $soluongban = $item['soluongban'];
             $giatien = $item['giatien'];
             $tongtien = $item['tongtien'];
-            $phuongthuc = $_POST['phuongthuc'];  // Phương thức thanh toán
+            $phuongthuc = $_POST['phuongthuc'];  
 
-            // Thêm giao dịch vào bảng `ban_hang`
             $sqlbanhang = "INSERT INTO ban_hang (mavach, tenhang, soluongban, giatien, tongtien, phuongthucthanhtoan)
                            VALUES ('$mavach', '$tenhang', $soluongban, $giatien, $tongtien, '$phuongthuc')";
             if ($conn->query($sqlbanhang) === TRUE) {
-                // Cập nhật lại số lượng kho
+          
                 $sqlupdatesoluong = "UPDATE mahang SET soluong = soluong - $soluongban WHERE mavach = '$mavach'";
                 $conn->query($sqlupdatesoluong);
             } else {
@@ -121,18 +111,15 @@ if (isset($_POST['ban_hang'])) {
 
         echo "Giao dịch bán hàng đã được xử lý thành công!";
 
-        // Xóa giỏ hàng sau khi bán
         $_SESSION['cart'] = [];
     }
 }
 
-// Xử lý phương thức thanh toán
 if (isset($_POST['thanh_toan'])) {
-    $phuongthuc = mysqli_real_escape_string($conn, $_POST['phuongthuc']);  // Escape để tránh lỗi SQL
-    $tongtien = $_POST['tongtien'];  // Tổng tiền giao dịch
+    $phuongthuc = mysqli_real_escape_string($conn, $_POST['phuongthuc']);  
+    $tongtien = $_POST['tongtien'];  
 
     if ($tongtien > 0) {
-        // Thêm thông tin thanh toán vào cơ sở dữ liệu
         $sqlthanhtoan = "INSERT INTO thanh_toan (phuongthuc, tongtien) 
                            VALUES ('$phuongthuc', $tongtien)";
 
@@ -146,10 +133,9 @@ if (isset($_POST['thanh_toan'])) {
     }
 }
 
-// Xử lý nút làm mới giỏ hàng
 if (isset($_POST['clear_cart'])) {
-    $_SESSION['cart'] = [];  // Xóa giỏ hàng
-    $tongtien = 0;  // Đặt lại tổng tiền
+    $_SESSION['cart'] = [];  
+    $tongtien = 0; 
 }
 ?>
 
@@ -166,7 +152,6 @@ if (isset($_POST['clear_cart'])) {
 
 <h1>Quản lý Bán Hàng</h1>
 
-<!-- Form nhập mã vạch và kiểm tra -->
 <form method="POST">
     <h3>Nhập mã vạch và kiểm tra</h3>
     <label>Mã vạch:</label>
@@ -189,8 +174,6 @@ if (isset($_POST['clear_cart'])) {
 <?php endif; ?>
 
 <br>
-
-<!-- Hiển thị giỏ hàng -->
 <h3>Giỏ hàng</h3>
 <table>
     <tr>
@@ -217,7 +200,6 @@ if (isset($_POST['clear_cart'])) {
 
 <p>Tổng tiền: <?php echo $tongtien; ?></p>
 
-<!-- Thêm các nút xử lý -->
 <form method="POST">
     <button type="submit" name="ban_hang">Bán hàng</button>
     <button type="submit" name="clear_cart">Làm mới giỏ hàng</button>

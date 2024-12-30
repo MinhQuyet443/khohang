@@ -1,10 +1,10 @@
 <?php
-// Bắt đầu session
+
 session_start();
 
-// Kiểm tra nếu người dùng chưa đăng nhập
+
 if (!isset($_SESSION['mySession'])) {
-    header('Location: login.php'); // Điều hướng người dùng tới trang đăng nhập nếu chưa đăng nhập
+    header('Location: login.php'); 
     exit;
 }
 ?>

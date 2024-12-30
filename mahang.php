@@ -8,23 +8,20 @@ if (isset($_POST['add'])) {
     $conn->query("INSERT INTO mahang (mavach, tenhang, soluong, giatien) VALUES ('$mavach', '$tenhang', $soluong, $giatien)");
 }
 
-// Xóa mã hàng
 if (isset($_POST['delete'])) {
     $id = $_POST['id'];
     $conn->query("DELETE FROM mahang WHERE id = $id");
 }
 
-// Cập nhật giá tiền
+
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
     $giatien = $_POST['giatien'];
     $conn->query("UPDATE mahang SET giatien = $giatien WHERE id = $id");
 }
-
-// Lấy danh sách mã hàng
 $result = $conn->query("SELECT * FROM mahang");
 
-// Kiểm tra nếu có yêu cầu chỉnh sửa
+
 $edit_id = isset($_GET['edit']) ? $_GET['edit'] : null;
 ?>
 
@@ -52,7 +49,6 @@ $edit_id = isset($_GET['edit']) ? $_GET['edit'] : null;
         </ul>
     </nav>
 
-    <!-- Thêm mã hàng -->
     <form method="POST">
         <h3>Thêm mã hàng</h3>
         <input type="text" name="mavach" placeholder="Mã vạch" required>
@@ -62,7 +58,6 @@ $edit_id = isset($_GET['edit']) ? $_GET['edit'] : null;
         <button type="submit" name="add">Thêm</button>
     </form>
 
-    <!-- Danh sách mã hàng -->
     <h3>Danh sách mã hàng</h3>
     <table border="1">
         <tr>
@@ -81,17 +76,17 @@ $edit_id = isset($_GET['edit']) ? $_GET['edit'] : null;
             <td><?php echo $row['soluong']; ?></td>
             <td><?php echo $row['giatien']; ?></td>
             <td>
-                <!-- Nút xóa -->
+        
                 <form method="POST" style="display:inline;">
                     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                     <button type="submit" name="delete">Xóa</button>
                 </form>
-                <!-- Nút chỉnh sửa -->
+        
                 <a href="?edit=<?php echo $row['id']; ?>">Chỉnh sửa</a>
             </td>
         </tr>
         <?php if ($edit_id == $row['id']): ?>
-        <!-- Hiển thị form chỉnh sửa giá tiền -->
+    
         <tr>
             <td colspan="6">
                 <form method="POST">

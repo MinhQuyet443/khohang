@@ -35,6 +35,21 @@ if (isset($_POST['login'])) {
     <title>Đăng nhập</title>
 </head>
 <body>
+<header>
+      
+      <a href="logout.php">Đăng xuất</a>
+  </header>
+
+  <nav>
+      <ul>
+          <li><a href="mahang.php">Quản lý mã hàng</a></li>
+          <li><a href="nhapkho.php">Nhập kho</a></li>
+          <li><a href="xuatkho.php">Xuất kho</a></li>
+          <li><a href="chenhlech.php">Chênh lệch</a></li>
+          <li><a href="banhang.php">Bán hàng</a></li>
+          <li><a href="baocao.php">Báo Cáo</a></li>
+      </ul>
+  </nav>
     <h2>Đăng nhập vào hệ thống Quản lý Kho</h2>
 
     <?php if (isset($error_message)): ?>

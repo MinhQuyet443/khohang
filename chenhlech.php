@@ -1,46 +1,44 @@
 <?php
 include 'connect.php';
-$tenhang = ""; // Tên hàng mặc định
-$giatien = 0;  // Giá bán mặc định
-$soluonghethong = 0; // Số lượng hệ thống mặc định
+$tenhang = ""; 
+$giatien = 0;  
+$soluonghethong = 0; 
 
-// Kiểm tra nếu mã vạch được nhập và gửi qua biểu mẫu
 if (isset($_POST['checkmavach'])) {
     $mavach = $_POST['mavach'];
     $result = $conn->query("SELECT tenhang, giatien, soluong FROM mahang WHERE mavach = '$mavach'");
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $tenhang = $row['tenhang']; // Lấy tên hàng từ cơ sở dữ liệu
-        $giatien = $row['giatien']; // Lấy giá bán từ cơ sở dữ liệu
-        $soluonghethong = $row['soluong']; // Lấy số lượng hệ thống
+        $tenhang = $row['tenhang'];
+        $giatien = $row['giatien']; 
+        $soluonghethong = $row['soluong']; 
     } else {
-        $tenhang = "Không tìm thấy"; // Thông báo nếu mã vạch không tồn tại
+        $tenhang = "Không tìm thấy"; 
     }
 }
 
-// Cập nhật hàng âm và tiền âm
+
 if (isset($_POST['capnhatchenhlech'])) {
     $mavach = $_POST['mavach'];
-    $soluongthucte = $_POST['soluongthucte']; // Số lượng thực tế nhập từ người dùng
+    $soluongthucte = $_POST['soluongthucte']; 
 
-    // Lấy dữ liệu từ cơ sở dữ liệu về số lượng hệ thống và giá tiền
     $result = $conn->query("SELECT tenhang, giatien, soluong FROM mahang WHERE mavach = '$mavach'");
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $tenhang = $row['tenhang']; // Lấy tên hàng
-        $giatien = $row['giatien']; // Lấy giá tiền
-        $soluonghethong = $row['soluong']; // Lấy số lượng hệ thống
+        $tenhang = $row['tenhang']; 
+        $giatien = $row['giatien']; 
+        $soluonghethong = $row['soluong']; 
     } else {
         $tenhang = "Không tìm thấy";
         echo "Mã vạch không tồn tại trong cơ sở dữ liệu. <br>";
-        exit; // Dừng chương trình nếu không tìm thấy mã vạch
+        exit; 
     }
 
-    // Tính toán hàng âm và tiền âm
-    $hangam = $soluongthucte - $soluonghethong; // Hàng âm
-    $tienam = $hangam * $giatien; // Tiền âm
+    
+    $hangam = $soluongthucte - $soluonghethong; 
+    $tienam = $hangam * $giatien; 
 
-    // Chèn vào bảng chenh_lech
+  
     $sqlchenhlech = "INSERT INTO chenh_lech (mavach, soluongthucte, soluonghethong, hangam, tienam) 
                        VALUES ('$mavach', $soluongthucte, $soluonghethong, $hangam, $tienam)";
     if ($conn->query($sqlchenhlech) === TRUE) {
@@ -50,14 +48,14 @@ if (isset($_POST['capnhatchenhlech'])) {
     }
 }
 
-// Lấy danh sách hàng âm và tiền âm
+
 $chenhlechlist = $conn->query("
     SELECT chenh_lech.id, mahang.tenhang, chenh_lech.mavach, chenh_lech.soluongthucte, chenh_lech.soluonghethong, chenh_lech.hangam, chenh_lech.tienam, mahang.giatien
     FROM chenh_lech
     JOIN mahang ON chenh_lech.mavach = mahang.mavach
 ");
 
-// Tính tổng tiền âm
+
 $totaltienamresult = $conn->query("SELECT SUM(tienam) AS totaltienam FROM chenh_lech");
 $totaltienamrow = $totaltienamresult->fetch_assoc();
 $totaltienam = $totaltienamrow['totaltienam'] ? $totaltienamrow['totaltienam'] : 0;
@@ -88,7 +86,7 @@ $totaltienam = $totaltienamrow['totaltienam'] ? $totaltienamrow['totaltienam'] :
 
     <h1>Quản lý Hàng Âm và Tiền Âm</h1>
 
-    <!-- Form nhập mã vạch -->
+   
     <form method="POST">
         <h3>Kiểm tra Mã Vạch</h3>
         <label>Mã vạch:</label>
@@ -101,7 +99,7 @@ $totaltienam = $totaltienamrow['totaltienam'] ? $totaltienamrow['totaltienam'] :
     <label>Số lượng hệ thống:</label><input type="text" value="<?php echo isset($soluonghethong) ? $soluonghethong : ''; ?>" readonly>
     <br><br>
 
-    <!-- Form nhập hàng âm và tiền âm -->
+   
     <form method="POST">
     <h3>Cập Nhật Hàng Âm và Tiền Âm</h3>
         <input type="hidden" name="mavach" value="<?php echo isset($_POST['mavach']) ? $_POST['mavach'] : ''; ?>">
@@ -138,7 +136,7 @@ $totaltienam = $totaltienamrow['totaltienam'] ? $totaltienamrow['totaltienam'] :
         <?php endwhile; ?>
     </table>
 
-    <!-- Hiển thị tổng tiền âm -->
+
     <h3>Tổng Tiền Âm: <?php echo number_format($totaltienam, 2); ?> VNĐ</h3>
 </body>
 </html>

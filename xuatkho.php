@@ -1,11 +1,10 @@
 <?php
 include 'connect.php';
 
-$tenhang = ""; // Tên hàng mặc định
-$loaixuat = ""; // Loại xuất kho mặc định
-$cuahang = ""; // Cửa hàng mặc định
+$tenhang = ""; 
+$loaixuat = ""; 
+$cuahang = ""; 
 
-// Kiểm tra nếu mã vạch được nhập và gửi qua biểu mẫu
 if (isset($_POST['checkmavach'])) {
     $mavach = $_POST['mavach'];
     $result = $conn->query("SELECT tenhang FROM mahang WHERE mavach = '$mavach'");
@@ -13,34 +12,34 @@ if (isset($_POST['checkmavach'])) {
         $row = $result->fetch_assoc();
         $tenhang = $row['tenhang'];
     } else {
-        $tenhang = "Không tìm thấy"; // Thông báo nếu mã vạch không tồn tại
+        $tenhang = "Không tìm thấy"; 
     }
 }
 
-// Thêm dữ liệu xuất kho
+
 if (isset($_POST['xuatkho'])) {
     $mavach = $_POST['mavach'];
     $soluong = $_POST['soluong'];
     $ngayxuat = $_POST['ngayxuat'];
     $loaixuat = $_POST['loaixuat'];
     if ($loaixuat == 'chuyenhang') {
-        $cuahang = $_POST['cuahang']; // Lấy cửa hàng chuyển đi
+        $cuahang = $_POST['cuahang']; 
     }
     
-    // Kiểm tra số lượng có đủ để xuất không
+  
     $result = $conn->query("SELECT soluong FROM mahang WHERE mavach = '$mavach'");
     $row = $result->fetch_assoc();
     $soluongkho = $row['soluong'];
 
     if ($soluongkho >= $soluong) {
         if ($loaixuat == 'huyhang') {
-            // Hủy hàng
+         
             $sql = "INSERT INTO xuatkho (mavach, soluong, ngayxuat, loaixuat) VALUES ('$mavach', $soluong, '$ngayxuat', 'Hủy')";
             $conn->query($sql);
             $conn->query("UPDATE mahang SET soluong = soluong - $soluong WHERE mavach = '$mavach'");
             echo "Hủy hàng thành công!";
         } elseif ($loaixuat == 'chuyenhang') {
-            // Chuyển đi cửa hàng khác
+         
             $sql = "INSERT INTO xuatkho (mavach, soluong, ngayxuat, loaixuat, cuahang) VALUES ('$mavach', $soluong, '$ngayxuat', 'Chuyển', '$cuahang')";
             $conn->query($sql);
             $conn->query("UPDATE mahang SET soluong = soluong - $soluong WHERE mavach = '$mavach'");
@@ -51,7 +50,7 @@ if (isset($_POST['xuatkho'])) {
     }
 }
 
-// Lấy danh sách xuất kho
+
 $xuatkholist = $conn->query("
     SELECT xuatkho.id, mahang.tenhang, xuatkho.mavach, xuatkho.soluong, xuatkho.ngayxuat, xuatkho.loaixuat, xuatkho.cuahang
     FROM xuatkho
@@ -84,8 +83,7 @@ $xuatkholist = $conn->query("
     <h1>Quản lý Xuất Kho</h1>
 
 
-    <!-- Form nhập mã vạch -->
-    <form method="POST">
+                <form method="POST">
         <h3>Kiểm tra Mã Vạch</h3>
         <label>Mã vạch:</label>
         <input type="text" name="mavach" value="<?php echo isset($_POST['mavach']) ? $_POST['mavach'] : ''; ?>" required>

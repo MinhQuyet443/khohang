@@ -1,50 +1,45 @@
 <?php
 include 'connect.php';
 
-$tenhang = ""; // Tên hàng mặc định
+$tenhang = "";
 
-// Kiểm tra nếu mã vạch được nhập và gửi qua biểu mẫu
 if (isset($_POST['check_mavach'])) {
     $mavach = $_POST['mavach'];
     $result = $conn->query("SELECT tenhang FROM mahang WHERE mavach = '$mavach'");
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $tenhang = $row['tenhang']; // Lấy tên hàng từ cơ sở dữ liệu
+        $tenhang = $row['tenhang']; 
     } else {
-        $tenhang = "Không tìm thấy"; // Thông báo nếu mã vạch không tồn tại
+        $tenhang = "Không tìm thấy";
     }
 }
 
-// Thêm dữ liệu nhập kho
 if (isset($_POST['nhapkho'])) {
     $mavach = $_POST['mavach'];
     $soluong = $_POST['soluong'];
     $ngaynhap = $_POST['ngaynhap'];
     
-    // Kiểm tra nếu mã vạch đã tồn tại trong kho
+   
     $result = $conn->query("SELECT soluong FROM mahang WHERE mavach = '$mavach'");
     if ($result->num_rows > 0) {
-        // Nếu sản phẩm đã có, cập nhật số lượng trong kho
+   
         $row = $result->fetch_assoc();
         $soluong_kho = $row['soluong'];
-        $soluong_kho += $soluong; // Tăng số lượng trong kho
+        $soluong_kho += $soluong;
 
-        // Cập nhật lại số lượng trong bảng mahang
+       
         $sql_update = "UPDATE mahang SET soluong = $soluong_kho WHERE mavach = '$mavach'";
         $conn->query($sql_update);
 
-        // Ghi lại thông tin nhập kho vào bảng nhapkho
         $sql_nhap = "INSERT INTO nhapkho (mavach, tenhang, soluong, ngaynhap) VALUES ('$mavach', '$tenhang', $soluong, '$ngaynhap')";
         $conn->query($sql_nhap);
 
         echo "Nhập kho thành công! Số lượng đã được cập nhật.";
     } else {
-        // Nếu sản phẩm chưa có trong kho, thông báo lỗi
         echo "Lỗi: Mã vạch không tồn tại trong kho.";
     }
 }
 
-// Lấy danh sách nhập kho
 $nhapkho_list = $conn->query("
     SELECT nhapkho.id, nhapkho.mavach, nhapkho.tenhang, nhapkho.soluong, nhapkho.ngaynhap
     FROM nhapkho
@@ -76,7 +71,6 @@ $nhapkho_list = $conn->query("
 
     <h1>Quản lý Nhập Kho</h1>
 
-    <!-- Form nhập mã vạch -->
     <form method="POST">
         <h3>Kiểm tra Mã Vạch</h3>
         <label>Mã vạch:</label>
@@ -88,7 +82,6 @@ $nhapkho_list = $conn->query("
     <input type="text" value="<?php echo $tenhang; ?>" readonly>
     <br><br>
 
-    <!-- Form nhập kho -->
     <form method="POST">
         <h3>Nhập Kho</h3>
         <input type="hidden" name="mavach" value="<?php echo isset($_POST['mavach']) ? $_POST['mavach'] : ''; ?>">
